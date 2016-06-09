@@ -15,17 +15,31 @@ app.get('/', function (req, res) {
 
 app.get('/transaction', function (req, res) {
   var value = req.query.query;
+  var amount = 2524495800000000000;
   var transactionObject = {
     from:"0x1c7a3fb0a41e247460b69f034964b54aab03738b",
     to: value,
-    value: 2524495800000000000
+    value: amount
   }
   web3.eth.sendTransaction(transactionObject, function(error, result) {
     console.log(error);
     console.log(result);
-  });
 
-  res.send('Hello World!');
+
+    if(error) {
+      res.json({
+        error:""+error
+      })
+      return;
+    } else {
+      res.json({
+        result: result,
+        amount: amount
+      })
+      return;
+    }
+
+  });
 });
 
 app.listen(3000, function () {
