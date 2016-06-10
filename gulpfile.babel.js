@@ -7,6 +7,7 @@ import notify from 'gulp-notify';
 import notifier from 'node-notifier';
 import plumber from 'gulp-plumber'
 import through from 'through2';
+import sass from 'gulp-sass';
 
 
 var hasError = false;
@@ -32,6 +33,12 @@ gulp.task('babelify', () => {
         hasError=false;
       }
     })
+});
+
+gulp.task('sass', () => {
+  return gulp.src('./sass/**/*.scss')
+    .pipe(sass().on('error', sass.logError))
+    .pipe(gulp.dest('./public/css'));
 });
 
 gulp.task('connect', () => {
@@ -60,14 +67,15 @@ gulp.task('reload-html', () => {
     gulp.src('./public/index.html').pipe(connect.reload());
 });
 gulp.task('reload-css', () => {
-    gulp.src('./css/*.css').pipe(connect.reload());
+    gulp.src('./public/css/*.css').pipe(connect.reload());
 });
 
 gulp.task('watch', () => {
     gulp.watch(['./js/**/*.jsx'], ['reload-js']);
     gulp.watch(['./public/index.html'], ['reload-html']);
-    gulp.watch(['./css/*.css'], ['reload-css']);
+    gulp.watch(['./sass/**/*.scss'], ['sass','reload-css']);
+
 })
 
-gulp.task('serve', ['babelify', 'connect', 'watch']);
+gulp.task('serve', ['babelify', 'sass', 'connect', 'watch']);
 gulp.task('build', ['babelify']);

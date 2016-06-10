@@ -1,29 +1,42 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import request from 'superagent';
+import Feedback from './feedback';
+var Web3 = require('web3')
+
+var provider = new Web3.providers.HttpProvider('http://192.168.100.5:8545');
+var web3 = new Web3(provider);
 
 var App = React.createClass({
-  getDefaultState () {
-    return {web3 : web3}
+  getInitialState () {
+    return {web3 : web3, validation : undefined}
   },
   render () {
       return <div>
-                <p>Addresse:</p>
+                <h1>Send ether to yourself</h1>
+                <h3>Addresse:</h3>
                 <input ref='adresse' type='text'/>
-                <div onClick={this.onClick}>Send me money</div>
+                <div id='click' onClick={this.onClick}>Send me money</div>
+                <div>
+                  <Feedback validation={this.state.validation}/>
+                </div>
              </div>;
   },
   onClick () {
     var value = this.refs.adresse.value;
-    request.get('http://192.168.100.5:3000/transaction')
-    .query({query:value})
-    .end(function (error, response, body) {
-      if (!error && response.statusCode == 200) {
-        console.log(body) // Show the HTML for the Google homepage.
+    var amount = 2524495800000000000;
+    var transactionObject = {
+      from:"0x1c7a3fb0a41e247460b69f034964b54aab03738b",
+      to: value,
+      value: amount
+    }
+    web3.eth.sendTransaction(transactionObject, (error, result) => {
+      if(error) {
+        this.setState({validation: {error: true, message: error.toString()}});
       } else {
-        console.log(error)
+        this.setState({validation: {error: false, message: 'Transaction id: '+result}});
       }
-    })
+    });
   }
 
 });
